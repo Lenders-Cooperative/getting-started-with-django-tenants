@@ -1,5 +1,6 @@
-exclude: "^docs/|/migrations/"
+exclude: "docs|node_modules|migrations|.git"
 default_stages: [commit]
+fail_fast: true
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -19,6 +20,8 @@ repos:
     rev: 22.10.0
     hooks:
       - id: black
+        exclude: ^.*\b(migrations)\b.*$
+        args: ["--target-version", "py310"]
 
   - repo: https://github.com/PyCQA/isort
     rev: 5.10.1
