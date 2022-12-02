@@ -74,10 +74,12 @@ THIRD_PARTY_APPS = [
     "rest_framework.authtoken",
     "corsheaders",
     "drf_spectacular",
+    "djangoql",
 ]
 
 LOCAL_APPS = [
     "getting_started_with_django_tenants.users",
+    "getting_started_with_django_tenants.knowledge_base"
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -86,9 +88,7 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 # MIGRATIONS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
-MIGRATION_MODULES = {
-    "sites": "getting_started_with_django_tenants.contrib.sites.migrations"
-}
+MIGRATION_MODULES = {"sites": "getting_started_with_django_tenants.contrib.sites.migrations"}
 
 # AUTHENTICATION
 # ------------------------------------------------------------------------------
@@ -116,9 +116,7 @@ PASSWORD_HASHERS = [
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -240,12 +238,7 @@ MANAGERS = ADMINS
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "%(levelname)s %(asctime)s %(module)s "
-            "%(process)d %(thread)d %(message)s"
-        }
-    },
+    "formatters": {"verbose": {"format": "%(levelname)s %(asctime)s %(module)s " "%(process)d %(thread)d %(message)s"}},
     "handlers": {
         "console": {
             "level": "DEBUG",
@@ -297,17 +290,11 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
 ACCOUNT_ADAPTER = "getting_started_with_django_tenants.users.adapters.AccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-ACCOUNT_FORMS = {
-    "signup": "getting_started_with_django_tenants.users.forms.UserSignupForm"
-}
+ACCOUNT_FORMS = {"signup": "getting_started_with_django_tenants.users.forms.UserSignupForm"}
 # https://django-allauth.readthedocs.io/en/latest/configuration.html
-SOCIALACCOUNT_ADAPTER = (
-    "getting_started_with_django_tenants.users.adapters.SocialAccountAdapter"
-)
+SOCIALACCOUNT_ADAPTER = "getting_started_with_django_tenants.users.adapters.SocialAccountAdapter"
 # https://django-allauth.readthedocs.io/en/latest/forms.html
-SOCIALACCOUNT_FORMS = {
-    "signup": "getting_started_with_django_tenants.users.forms.UserSocialSignupForm"
-}
+SOCIALACCOUNT_FORMS = {"signup": "getting_started_with_django_tenants.users.forms.UserSocialSignupForm"}
 
 # django-rest-framework
 # -------------------------------------------------------------------------------
