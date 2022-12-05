@@ -1,16 +1,16 @@
 version: '3'
 
 volumes:
-  getting_started_with_django_tenants_local_postgres_data: {}
-  getting_started_with_django_tenants_local_postgres_data_backups: {}
+  gswdt_local_postgres_data: {}
+  gswdt_local_postgres_data_backups: {}
 
 services:
   django: &django
     build:
       context: .
       dockerfile: ./compose/local/django/Dockerfile
-    image: getting_started_with_django_tenants_local_django
-    container_name: getting_started_with_django_tenants_local_django
+    image: gswdt_local_django
+    container_name: gswdt_local_django
     depends_on:
       - postgres
       - redis
@@ -28,17 +28,19 @@ services:
     build:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
-    image: getting_started_with_django_tenants_production_postgres
-    container_name: getting_started_with_django_tenants_local_postgres
+    image: gswdt_production_postgres
+    container_name: gswdt_local_postgres
     volumes:
-      - getting_started_with_django_tenants_local_postgres_data:/var/lib/postgresql/data:Z
-      - getting_started_with_django_tenants_local_postgres_data_backups:/backups:z
+      - gswdt_local_postgres_data:/var/lib/postgresql/data:Z
+      - gswdt_local_postgres_data_backups:/backups:z
     env_file:
       - ./.envs/.local/.postgres
+    ports:
+      - "54322:5432"
 
   docs:
-    image: getting_started_with_django_tenants_local_docs
-    container_name: getting_started_with_django_tenants_local_docs
+    image: gswdt_local_docs
+    container_name: gswdt_local_docs
     build:
       context: .
       dockerfile: ./compose/local/docs/Dockerfile
@@ -54,18 +56,18 @@ services:
 
   mailhog:
     image: mailhog/mailhog:v1.0.0
-    container_name: getting_started_with_django_tenants_local_mailhog
+    container_name: gswdt_local_mailhog
     ports:
       - "8025:8025"
 
   redis:
     image: redis:6
-    container_name: getting_started_with_django_tenants_local_redis
+    container_name: gswdt_local_redis
 
   celeryworker:
     <<: *django
-    image: getting_started_with_django_tenants_local_celeryworker
-    container_name: getting_started_with_django_tenants_local_celeryworker
+    image: gswdt_local_celeryworker
+    container_name: gswdt_local_celeryworker
     depends_on:
       - redis
       - postgres
@@ -75,8 +77,8 @@ services:
 
   celerybeat:
     <<: *django
-    image: getting_started_with_django_tenants_local_celerybeat
-    container_name: getting_started_with_django_tenants_local_celerybeat
+    image: gswdt_local_celerybeat
+    container_name: gswdt_local_celerybeat
     depends_on:
       - redis
       - postgres
@@ -86,8 +88,8 @@ services:
 
   flower:
     <<: *django
-    image: getting_started_with_django_tenants_local_flower
-    container_name: getting_started_with_django_tenants_local_flower
+    image: gswdt_local_flower
+    container_name: gswdt_local_flower
     ports:
       - "5555:5555"
     command: /start-flower
