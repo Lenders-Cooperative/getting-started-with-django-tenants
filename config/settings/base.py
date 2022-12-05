@@ -38,52 +38,20 @@ LOCALE_PATHS = [str(ROOT_DIR / "locale")]
 # DATABASES
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
-DATABASES = {"default": env.db("DATABASE_URL")}
-DATABASES["default"]["ATOMIC_REQUESTS"] = True
+DEFAULT_DB = "default"
+
+DATABASES = {DEFAULT_DB: env.db("DATABASE_URL")}
+DATABASES[DEFAULT_DB]["ATOMIC_REQUESTS"] = True
+DATABASES[DEFAULT_DB]["ENGINE"] = "django_tenants.postgresql_backend"
 # https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-DEFAULT_AUTO_FIELD
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # URLS
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#root-urlconf
-ROOT_URLCONF = "config.urls"
+ROOT_URLCONF = ""
 # https://docs.djangoproject.com/en/dev/ref/settings/#wsgi-application
 WSGI_APPLICATION = "config.wsgi.application"
-
-# APPS
-# ------------------------------------------------------------------------------
-DJANGO_APPS = [
-    "django.contrib.auth",
-    "django.contrib.contenttypes",
-    "django.contrib.sessions",
-    "django.contrib.sites",
-    "django.contrib.messages",
-    "django.contrib.staticfiles",
-    # "django.contrib.humanize", # Handy template tags
-    "django.contrib.admin",
-    "django.forms",
-]
-THIRD_PARTY_APPS = [
-    "crispy_forms",
-    "crispy_bootstrap5",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "django_celery_beat",
-    "rest_framework",
-    "rest_framework.authtoken",
-    "corsheaders",
-    "drf_spectacular",
-    "djangoql",
-]
-
-LOCAL_APPS = [
-    "getting_started_with_django_tenants.users",
-    "getting_started_with_django_tenants.knowledge_base"
-    # Your stuff: custom apps go here
-]
-# https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 # MIGRATIONS
 # ------------------------------------------------------------------------------
@@ -126,6 +94,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#middleware
 MIDDLEWARE = [
+    "django_tenants.middleware.main.TenantMainMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -174,6 +143,7 @@ TEMPLATES = [
         "OPTIONS": {
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-context-processors
             "context_processors": [
+                "django.template.context_processors.request",
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
@@ -325,3 +295,101 @@ SPECTACULAR_SETTINGS = {
 }
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+BASE_URL = env("BASE_URL", default="localhost")
+
+# Django Tenants
+DATABASE_ROUTERS = ("django_tenants.routers.TenantSyncRouter",)
+
+# APPS
+# ------------------------------------------------------------------------------
+PUBLIC_APPS = [
+    "django_tenants",
+    "constance",
+    "constance.backends.database",
+    "getting_started_with_django_tenants.organizations",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.sites",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    # "django.contrib.humanize", # Handy template tags
+    "django.contrib.admin",
+    "django.forms",
+    "django.contrib.auth",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "django_celery_beat",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders",
+    "drf_spectacular",
+    "djangoql",
+    "getting_started_with_django_tenants.users",
+]
+
+TENANT_APPS = [
+    "django_tenants",
+    "constance",
+    "constance.backends.database",
+    "getting_started_with_django_tenants.organizations",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.sites",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    # "django.contrib.humanize", # Handy template tags
+    "django.contrib.admin",
+    "django.forms",
+    "django.contrib.auth",
+    "crispy_forms",
+    "crispy_bootstrap5",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "django_celery_beat",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "corsheaders",
+    "drf_spectacular",
+    "djangoql",
+    "getting_started_with_django_tenants.users",
+    "getting_started_with_django_tenants.knowledge_base",
+]
+
+PUBLIC_TENANT_NAME = "public"
+ORG_TENANT_NAME = "organization"
+
+# https://django-tenants.readthedocs.io/en/latest/use.html#multi-types-tenants
+TENANT_TYPES = {
+    PUBLIC_TENANT_NAME: {
+        "APPS": PUBLIC_APPS,
+        "URLCONF": "config.urls_public",  # url for the public type here
+    },
+    ORG_TENANT_NAME: {
+        "APPS": TENANT_APPS,
+        "URLCONF": "config.urls",
+    },
+}
+
+TENANT_URLCONF = TENANT_TYPES[ORG_TENANT_NAME]["URLCONF"]
+SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
+
+# https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
+INSTALLED_APPS = []
+for schema in TENANT_TYPES:
+    INSTALLED_APPS += [app for app in TENANT_TYPES[schema]["APPS"] if app not in INSTALLED_APPS]
+
+TENANT_MODEL = "organizations.Organization"
+TENANT_DOMAIN_MODEL = "organizations.Domain"
+
+HAS_MULTI_TYPE_TENANTS = True
+MULTI_TYPE_DATABASE_FIELD = "tenant_type"
+
+
+# Constance settings
+CONSTANCE_BACKEND = "constance.backends.database.DatabaseBackend"
+CONSTANCE_DATABASE_CACHE_BACKEND = "default"
