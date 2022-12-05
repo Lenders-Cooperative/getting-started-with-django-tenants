@@ -4,6 +4,10 @@ set -o errexit
 set -o pipefail
 set -o nounset
 
+echo "Migrating"
+python manage.py migrate_schemas
 
-python manage.py migrate
+echo "INIT Data"
+python manage.py runscript initialise
+
 exec uvicorn config.asgi:application --host 0.0.0.0 --reload --reload-include '*.html'
